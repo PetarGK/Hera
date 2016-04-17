@@ -10,4 +10,12 @@ namespace Hera.Persistence
     {
         void Notify();
     }
+
+    public class DefaultCommitNotifier : ICommitNotifier
+    {
+        public void Notify()
+        {
+            
+        }
+    }
 }

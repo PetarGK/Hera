@@ -10,6 +10,6 @@ namespace Hera.Persistence.EventStore
     public interface IEventStore
     {
         void Append(AggregateCommit aggregateCommit);
-        CommitStream Load(IIdentity aggregateId);
+        CommitStream Load(IIdentity aggregateId, string bucketId);
     }
 }

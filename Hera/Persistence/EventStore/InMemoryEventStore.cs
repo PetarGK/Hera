@@ -12,11 +12,11 @@ namespace Hera.Persistence.EventStore
     {
         public void Append(AggregateCommit aggregateCommit)
         {
-            throw new NotImplementedException();
+            
         }
-        public CommitStream Load(IIdentity aggregateId)
+        public CommitStream Load(IIdentity aggregateId, string bucketId)
         {
-            throw new NotImplementedException();
+            return null;
         }
     }
 }

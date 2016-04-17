@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Hera.DomainModeling;
+using Hera.DomainModeling.DomainEvent;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +15,15 @@ namespace Hera.Persistence
             Commits = commits;
         }
 
-        public IEnumerable<AggregateCommit> Commits { get; private set; }
+        private IEnumerable<AggregateCommit> Commits { get; set; }
+
+        public IEnumerable<IDomainEvent> Events
+        {
+            get { return Commits.SelectMany(s => s.Events).ToList(); }
+        }
+        public int Revision
+        {
+            get { return Commits.Last().Revision; }
+        }
     }
 }

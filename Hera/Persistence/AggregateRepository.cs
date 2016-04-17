@@ -7,6 +7,7 @@ using Hera.DomainModeling.AggregareRoot;
 using Hera.DomainModeling.Identity;
 using Hera.Persistence.EventStore;
 using Hera.Persistence.Snapshot;
+using Hera.DomainModeling.Repository;
 
 namespace Hera.Persistence
 {
@@ -33,9 +34,14 @@ namespace Hera.Persistence
 
         #region Methods
 
-        public TAggregateRoot Load<TAggregateRoot>(IIdentity aggregateId, string bucketId) where TAggregateRoot : IAggregateRoot
+        public TAggregateRoot Load<TAggregateRoot>(IIdentity aggregateRootId, string bucketId) where TAggregateRoot : IAggregateRoot
         {
-            throw new NotImplementedException();
+            var aggregateRoot = AggregateFactory.CreateAggregateRoot<TAggregateRoot>();
+
+            var stream = _eventStore.Load(aggregateRootId, bucketId);
+            aggregateRoot.ReplayEvents(stream.Events, stream.Revision);
+
+            return aggregateRoot;
         }
         public void Save<TAggregateRoot>(TAggregateRoot aggregateRoot, string bucketId) where TAggregateRoot : IAggregateRoot
         {
