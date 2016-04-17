@@ -30,12 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Hera.DomainModeling, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Hera.DomainModeling.0.1.1\lib\Hera.DomainModeling.dll</HintPath>
+    <Reference Include="Autofac, Version=3.5.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="ReflectionMagic, Version=2.0.0.0, Culture=neutral, PublicKeyToken=7b26dc2a43f6a0d4, processorArchitecture=MSIL">
-      <HintPath>..\packages\ReflectionMagic.2.1.0\lib\net40\ReflectionMagic.dll</HintPath>
+    <Reference Include="Hera.DomainModeling, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hera.DomainModeling.0.1.2\lib\Hera.DomainModeling.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -48,20 +48,37 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config\Hera.cs" />
+    <Compile Include="Logging\ILog.cs" />
+    <Compile Include="Logging\LogFactory.cs" />
     <Compile Include="Persistence\AggregateCommit.cs" />
+    <Compile Include="Persistence\AggregateFactory.cs" />
     <Compile Include="Persistence\AggregateRepository.cs" />
-    <Compile Include="Persistence\EventStream.cs" />
+    <Compile Include="Persistence\CommitStream.cs" />
+    <Compile Include="Persistence\ConcurrencyException.cs" />
+    <Compile Include="Persistence\Config\HeraPersistence.cs" />
+    <Compile Include="Persistence\Config\HeraPersistenceExtentions.cs" />
+    <Compile Include="Persistence\Config\HeraSnapshotting.cs" />
+    <Compile Include="Persistence\Config\HeraSnapshottingExtentions.cs" />
+    <Compile Include="Persistence\EventStore\EventStoreConcurrencyException.cs" />
+    <Compile Include="Persistence\EventStore\IEventStore.cs" />
     <Compile Include="Persistence\IAggregateRepository.cs" />
-    <Compile Include="Persistence\IEventStore.cs" />
-    <Compile Include="Persistence\ISnapshotStore.cs" />
-    <Compile Include="Persistence\Snapshot.cs" />
+    <Compile Include="Persistence\ICommitNotifier.cs" />
+    <Compile Include="Persistence\EventStore\InMemoryEventStore.cs" />
+    <Compile Include="Persistence\MissingParameterLessConstructorException.cs" />
+    <Compile Include="Persistence\Snapshot\InMemorySnapshotStore.cs" />
+    <Compile Include="Persistence\Snapshot\ISnapshotStore.cs" />
+    <Compile Include="Persistence\Snapshot\Snapshot.cs" />
+    <Compile Include="Projection\Config\HeraProjection.cs" />
+    <Compile Include="Projection\Config\HeraProjectionExtentions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Serialization\BinarySerializer.cs" />
+    <Compile Include="Serialization\ISerialize.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Persistence\Config\" />
-    <Folder Include="Persistence\InMemory\" />
-    <Folder Include="Projection\Config\" />
-    <Folder Include="Projection\InMemory\" />
+    <Folder Include="Diagnostics\Config\" />
+    <Folder Include="Logging\Config\" />
+    <Folder Include="Serialization\Config\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

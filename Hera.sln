@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hera", "Hera\Hera.csproj", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{E706C423-DBED-4E00-9EB7-549D7351D9B5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hera.Tests", "Hera.Tests\Hera.Tests.csproj", "{7C9E405B-2B3B-4CC1-A532-3ECCD13DF4B2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,6 +19,10 @@ Global
 		{568F400B-631B-466B-98F8-16EEE07D4A4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{568F400B-631B-466B-98F8-16EEE07D4A4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{568F400B-631B-466B-98F8-16EEE07D4A4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C9E405B-2B3B-4CC1-A532-3ECCD13DF4B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C9E405B-2B3B-4CC1-A532-3ECCD13DF4B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C9E405B-2B3B-4CC1-A532-3ECCD13DF4B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C9E405B-2B3B-4CC1-A532-3ECCD13DF4B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

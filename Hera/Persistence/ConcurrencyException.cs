@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Hera.Persistence
 {
-    public class EventStream
+    public class ConcurrencyException : Exception
     {
     }
 }

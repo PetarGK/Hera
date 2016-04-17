@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Hera.Persistence
 {
-    public class Snapshot
+    public interface ICommitNotifier
     {
+        void Notify();
     }
 }

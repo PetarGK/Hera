@@ -1,4 +1,5 @@
 ﻿using Hera.DomainModeling.AggregareRoot;
+using Hera.DomainModeling.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Hera.Persistence
 {
     public interface IAggregateRepository
     {
-        void Save<TAggregateRoot>(TAggregateRoot aggregateRoot) where TAggregateRoot : IAggregateRoot;
-        TAggregateRoot Load<TAggregateRoot>(Guid id) where TAggregateRoot : IAggregateRoot;
+        void Save<TAggregateRoot>(TAggregateRoot aggregateRoot, string bucketId) where TAggregateRoot : IAggregateRoot;
+        TAggregateRoot Load<TAggregateRoot>(IIdentity aggregateId, string bucketId) where TAggregateRoot : IAggregateRoot;
     }
 }

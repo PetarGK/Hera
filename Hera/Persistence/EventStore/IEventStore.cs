@@ -1,14 +1,15 @@
-﻿using System;
+﻿using Hera.DomainModeling.Identity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hera.Persistence
+namespace Hera.Persistence.EventStore
 {
     public interface IEventStore
     {
         void Append(AggregateCommit aggregateCommit);
-        EventStream Load(Guid aggregateId);
+        CommitStream Load(IIdentity aggregateId);
     }
 }
