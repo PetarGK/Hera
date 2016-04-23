@@ -64,6 +64,8 @@
     <Compile Include="Persistence\EventStore\IEventStore.cs" />
     <Compile Include="Persistence\ICommitNotifier.cs" />
     <Compile Include="Persistence\EventStore\InMemoryEventStore.cs" />
+    <Compile Include="Persistence\IEventPublisher.cs" />
+    <Compile Include="Persistence\IUnitOfWork.cs" />
     <Compile Include="Persistence\MissingParameterLessConstructorException.cs" />
     <Compile Include="Persistence\Snapshot\InMemorySnapshotStore.cs" />
     <Compile Include="Persistence\Snapshot\ISnapshotStore.cs" />

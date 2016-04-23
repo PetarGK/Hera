@@ -8,6 +8,7 @@ using Hera.DomainModeling.Identity;
 using Hera.Persistence.EventStore;
 using Hera.Persistence.Snapshot;
 using Hera.DomainModeling.Repository;
+using Hera.DomainModeling.DomainEvent;
 
 namespace Hera.Persistence
 {
@@ -17,17 +18,19 @@ namespace Hera.Persistence
 
         private readonly IEventStore _eventStore;
         private readonly ISnapshotStore _snapshotStore;
-        private readonly ICommitNotifier _commitNotifier;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IEventPublisher _eventPublisher;
 
         #endregion
 
         #region Constructors
 
-        public AggregateRepository(IEventStore eventStore, ISnapshotStore snapshotStore, ICommitNotifier commitNotifier)
+        public AggregateRepository(IEventStore eventStore, ISnapshotStore snapshotStore, IUnitOfWork unitOfWork, IEventPublisher eventPublisher)
         {
             _eventStore = eventStore;
             _snapshotStore = snapshotStore;
-            _commitNotifier = commitNotifier;
+            _unitOfWork = unitOfWork;
+            _eventPublisher = eventPublisher;
         }
 
         #endregion
@@ -45,10 +48,12 @@ namespace Hera.Persistence
         }
         public void Save<TAggregateRoot>(TAggregateRoot aggregateRoot, string bucketId) where TAggregateRoot : IAggregateRoot
         {
-            var aggregateCommit = new AggregateCommit(aggregateRoot.State.Id, bucketId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents);
-            _eventStore.Append(aggregateCommit);
+            _unitOfWork.AddEvents(aggregateRoot.State.Id, bucketId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents);
 
-            _commitNotifier.Notify();
+            foreach(IDomainEvent @event in aggregateRoot.UncommittedEvents)
+            {
+                _eventPublisher.Publish(@event);
+            }
         }
 
         #endregion
