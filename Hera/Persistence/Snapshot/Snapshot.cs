@@ -10,7 +10,7 @@ namespace Hera.Persistence.Snapshot
 {
     public sealed class Snapshot
     {
-        public IIdentity AggregateId { get; set; }
+        public string StreamId { get; set; }
         public int Revision { get; set; }
         public object Payload { get; set; }
     }

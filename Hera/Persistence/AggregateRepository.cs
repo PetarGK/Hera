@@ -37,23 +37,39 @@ namespace Hera.Persistence
 
         #region Methods
 
-        public TAggregateRoot Load<TAggregateRoot>(IIdentity aggregateRootId, string bucketId) where TAggregateRoot : IAggregateRoot
+        public TAggregateRoot Load<TAggregateRoot>(IIdentity aggregateRootId) where TAggregateRoot : IAggregateRoot
         {
             var aggregateRoot = AggregateFactory.CreateAggregateRoot<TAggregateRoot>();
 
-            var stream = _eventStore.Load(aggregateRootId, bucketId);
+            EventStream stream = null;
+            if (TryRestoreAggregateFromSnapshot(aggregateRootId, aggregateRoot))
+                stream = _eventStore.Load(aggregateRootId.ToString(), aggregateRoot.Revision);
+            else
+                stream = _eventStore.Load(aggregateRootId.ToString());
+
             aggregateRoot.ReplayEvents(stream.Events, stream.Revision);
 
             return aggregateRoot;
         }
-        public void Save<TAggregateRoot>(TAggregateRoot aggregateRoot, string bucketId) where TAggregateRoot : IAggregateRoot
+        public void Save<TAggregateRoot>(TAggregateRoot aggregateRoot) where TAggregateRoot : IAggregateRoot
         {
-            _unitOfWork.AddEvents(aggregateRoot.State.Id, bucketId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents);
+            _unitOfWork.Append(aggregateRoot);
 
-            foreach(IDomainEvent @event in aggregateRoot.UncommittedEvents)
+            foreach (IDomainEvent @event in aggregateRoot.UncommittedEvents)
             {
                 _eventPublisher.Publish(@event);
             }
+        }
+
+        private bool TryRestoreAggregateFromSnapshot<TAggregateRoot>(IIdentity aggregateRootId, TAggregateRoot aggregateRoot) where TAggregateRoot : IAggregateRoot
+        {
+            var snapshot = _snapshotStore.Load(aggregateRootId.ToString());
+            if (snapshot != null)
+            {
+                aggregateRoot = (TAggregateRoot)snapshot.Payload;
+                return true;
+            }
+            return false;
         }
 
         #endregion

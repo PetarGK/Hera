@@ -9,7 +9,7 @@ namespace Hera.Persistence.Snapshot
 {
     public interface ISnapshotStore
     {
-        Snapshot Load(IIdentity aggregateId);
+        Snapshot Load(string streamId);
         void Save(Snapshot snapshot);
     }
 }

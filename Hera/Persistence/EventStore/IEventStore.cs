@@ -9,7 +9,8 @@ namespace Hera.Persistence.EventStore
 {
     public interface IEventStore
     {
-        void Append(AggregateCommit aggregateCommit);
-        CommitStream Load(IIdentity aggregateId, string bucketId);
+        void Append(CommitAttempt commitAttempt);
+        EventStream Load(string streamId);
+        EventStream Load(string streamId, int skipRevision);
     }
 }

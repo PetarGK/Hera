@@ -5,18 +5,27 @@ using System.Text;
 using System.Threading.Tasks;
 using Hera.DomainModeling.Identity;
 using Hera.Persistence.Snapshot;
+using System.Collections.Concurrent;
 
 namespace Hera.Persistence.Snapshot
 {
     public class InMemorySnapshotStore : ISnapshotStore
     {
-        public Snapshot Load(IIdentity aggregateId)
+        private readonly ConcurrentDictionary<string, Snapshot> _inMemoryDB = new ConcurrentDictionary<string, Snapshot>();
+
+        public Snapshot Load(string streamId)
         {
-            throw new NotImplementedException();
+            Snapshot snapshot = null;
+            _inMemoryDB.TryGetValue(streamId, out snapshot);
+
+            return snapshot;
         }
         public void Save(Snapshot snapshot)
         {
-            throw new NotImplementedException();
+            if (_inMemoryDB.ContainsKey(snapshot.StreamId))
+                _inMemoryDB[snapshot.StreamId] = snapshot;
+            else
+                _inMemoryDB.TryAdd(snapshot.StreamId, snapshot);
         }
     }
 }

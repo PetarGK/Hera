@@ -15,16 +15,19 @@ namespace Hera
     {
         public static HeraPersistence SetupPersistence(this Hera hera)
         {
+            hera.Builder.RegisterType<AggregateRepository>().As<IAggregateRepository>().InstancePerLifetimeScope();
+            hera.Builder.RegisterType<EventSourcedUnitOfWork>().As<IUnitOfWork>().InstancePerMatchingLifetimeScope("unitOfWork");
+
             return new HeraPersistence(hera);
         }
 
         public static HeraPersistence UsingInMemoryPersistence(this HeraPersistence hera)
         {
-            hera.Builder.RegisterType<InMemoryEventStore>().As<IEventStore>();
-            hera.Builder.RegisterType<InMemorySnapshotStore>().As<ISnapshotStore>();
-            hera.Builder.RegisterType<DefaultCommitNotifier>().As<ICommitNotifier>();
-
-            hera.Builder.RegisterType<AggregateRepository>().As<IAggregateRepository>();
+            hera.Builder.RegisterType<InMemoryEventStore>().As<IEventStore>().SingleInstance();
+            hera.Builder.RegisterType<InMemorySnapshotStore>().As<ISnapshotStore>().SingleInstance();
+            hera.Builder.RegisterType<DefaultCommitNotifier>().As<ICommitNotifier>().SingleInstance();
+            hera.Builder.RegisterType<DefaultEventPublisher>().As<IEventPublisher>().SingleInstance();
+            
             return new HeraPersistence(hera);
         }
     }

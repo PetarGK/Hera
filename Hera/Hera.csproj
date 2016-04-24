@@ -35,7 +35,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Hera.DomainModeling, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Hera.DomainModeling.0.1.4\lib\Hera.DomainModeling.dll</HintPath>
+      <HintPath>..\packages\Hera.DomainModeling.0.1.7\lib\Hera.DomainModeling.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -51,11 +51,10 @@
     <Compile Include="Config\Hera.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\LogFactory.cs" />
-    <Compile Include="Persistence\AggregateCommit.cs" />
+    <Compile Include="Persistence\EventStore\CommitAttempt.cs" />
     <Compile Include="Persistence\AggregateFactory.cs" />
     <Compile Include="Persistence\AggregateRepository.cs" />
-    <Compile Include="Persistence\CommitStream.cs" />
-    <Compile Include="Persistence\ConcurrencyException.cs" />
+    <Compile Include="Persistence\EventStore\EventStream.cs" />
     <Compile Include="Persistence\Config\HeraPersistence.cs" />
     <Compile Include="Persistence\Config\HeraPersistenceExtentions.cs" />
     <Compile Include="Persistence\Config\HeraSnapshotting.cs" />
@@ -70,6 +69,7 @@
     <Compile Include="Persistence\Snapshot\InMemorySnapshotStore.cs" />
     <Compile Include="Persistence\Snapshot\ISnapshotStore.cs" />
     <Compile Include="Persistence\Snapshot\Snapshot.cs" />
+    <Compile Include="Persistence\EventStore\EventSourcedUnitOfWork.cs" />
     <Compile Include="Projection\Config\HeraProjection.cs" />
     <Compile Include="Projection\Config\HeraProjectionExtentions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

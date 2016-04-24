@@ -11,4 +11,14 @@ namespace Hera.Persistence
     {
         void Publish(IDomainEvent @event);
     }
+
+    public class DefaultEventPublisher : IEventPublisher
+    {
+
+
+        public void Publish(IDomainEvent @event)
+        {
+            
+        }
+    }
 }

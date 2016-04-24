@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Autofac;
 using Hera.Persistence;
 using Hera.ExampleModel;
+using Hera.DomainModeling.Repository;
 
 namespace Hera.Tests
 {
@@ -10,7 +11,7 @@ namespace Hera.Tests
     public class AggregatePersistenceTests
     {
         private OrderId _orderId = OrderId.NewId;
-        private string _bucket = "Default";
+        private CustomerId _customerId = new CustomerId(Guid.NewGuid());
         private IContainer _container;
 
 
@@ -36,15 +37,20 @@ namespace Hera.Tests
         public void SaveAggregate()
         {
             // arrange
-            var aggregateRepository = _container.Resolve<IAggregateRepository>();
-            var order = CreateOrder();
 
-            // act
-            aggregateRepository.Save(order, _bucket);
+            using (var scope = _container.BeginLifetimeScope("unitOfWork"))
+            {
+                var aggregateRepository = scope.Resolve<IAggregateRepository>();
+                var order = CreateOrder();
 
-            // assert
+                // act
+                aggregateRepository.Save(order);
 
+                var unitOfWork = scope.Resolve<IUnitOfWork>();
+                unitOfWork.Commit();
+                // assert
 
+            }
         }
 
         [TestMethod]
@@ -55,7 +61,7 @@ namespace Hera.Tests
 
         private Order CreateOrder()
         {
-            return new Order(_orderId);
+            return new Order(_customerId, _orderId);
         }
     }
 }
