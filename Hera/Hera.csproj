@@ -51,7 +51,8 @@
     <Compile Include="Config\Hera.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\LogFactory.cs" />
-    <Compile Include="Persistence\EventStore\CommitAttempt.cs" />
+    <Compile Include="Persistence\ConcurrencyException.cs" />
+    <Compile Include="Persistence\EventStore\CommitStream.cs" />
     <Compile Include="Persistence\AggregateFactory.cs" />
     <Compile Include="Persistence\AggregateRepository.cs" />
     <Compile Include="Persistence\EventStore\EventStream.cs" />
@@ -64,12 +65,10 @@
     <Compile Include="Persistence\ICommitNotifier.cs" />
     <Compile Include="Persistence\EventStore\InMemoryEventStore.cs" />
     <Compile Include="Persistence\IEventPublisher.cs" />
-    <Compile Include="Persistence\IUnitOfWork.cs" />
     <Compile Include="Persistence\MissingParameterLessConstructorException.cs" />
     <Compile Include="Persistence\Snapshot\InMemorySnapshotStore.cs" />
     <Compile Include="Persistence\Snapshot\ISnapshotStore.cs" />
     <Compile Include="Persistence\Snapshot\Snapshot.cs" />
-    <Compile Include="Persistence\EventStore\EventSourcedUnitOfWork.cs" />
     <Compile Include="Projection\Config\HeraProjection.cs" />
     <Compile Include="Projection\Config\HeraProjectionExtentions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -18,18 +18,16 @@ namespace Hera.Persistence
 
         private readonly IEventStore _eventStore;
         private readonly ISnapshotStore _snapshotStore;
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IEventPublisher _eventPublisher;
 
         #endregion
 
         #region Constructors
 
-        public AggregateRepository(IEventStore eventStore, ISnapshotStore snapshotStore, IUnitOfWork unitOfWork, IEventPublisher eventPublisher)
+        public AggregateRepository(IEventStore eventStore, ISnapshotStore snapshotStore, IEventPublisher eventPublisher)
         {
             _eventStore = eventStore;
             _snapshotStore = snapshotStore;
-            _unitOfWork = unitOfWork;
             _eventPublisher = eventPublisher;
         }
 
@@ -47,13 +45,23 @@ namespace Hera.Persistence
             else
                 stream = _eventStore.Load(aggregateRootId.ToString());
 
-            aggregateRoot.ReplayEvents(stream.Events, stream.Revision);
+            var events = new List<IDomainEvent>();
+            foreach(object commitEvents in stream.Events)
+            {
+                events.AddRange(DeserializeEvents(commitEvents));
+            }
+
+            aggregateRoot.ReplayEvents(events, stream.Revision);
 
             return aggregateRoot;
         }
         public void Save<TAggregateRoot>(TAggregateRoot aggregateRoot) where TAggregateRoot : IAggregateRoot
         {
-            _unitOfWork.Append(aggregateRoot);
+            object payload = SerializeEvents(aggregateRoot.UncommittedEvents);
+
+            var commitStream = new CommitStream(aggregateRoot.State.Id.ToString(), aggregateRoot.Revision, payload);
+
+            _eventStore.Append(commitStream);
 
             foreach (IDomainEvent @event in aggregateRoot.UncommittedEvents)
             {
@@ -66,10 +74,25 @@ namespace Hera.Persistence
             var snapshot = _snapshotStore.Load(aggregateRootId.ToString());
             if (snapshot != null)
             {
-                aggregateRoot = (TAggregateRoot)snapshot.Payload;
+                aggregateRoot = DeserializeAggregate<TAggregateRoot>(snapshot.Payload);
                 return true;
             }
             return false;
+        }
+
+        private object SerializeEvents(IEnumerable<IDomainEvent> events)
+        {
+            // Use ISerialize interface
+            return events;
+        }
+        private IEnumerable<IDomainEvent> DeserializeEvents(object payload)
+        {
+            // Use ISerialize interface
+            return (IEnumerable<IDomainEvent>)payload;
+        }
+        private TAggregateRoot DeserializeAggregate<TAggregateRoot>(object payload)
+        {
+            return (TAggregateRoot)payload;
         }
 
         #endregion

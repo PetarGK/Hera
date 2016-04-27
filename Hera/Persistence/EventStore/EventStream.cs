@@ -10,13 +10,20 @@ namespace Hera.Persistence.EventStore
 {
     public class EventStream
     {
-        public EventStream(IEnumerable<IDomainEvent> events, int revision)
+        public EventStream(IEnumerable<CommitStream> commits)
         {
-            Events = events;
-            Revision = revision;
+            Commits = commits;
         }
 
-        public IEnumerable<IDomainEvent> Events { get; private set; }
-        public int Revision { get; private set; }
+        private IEnumerable<CommitStream> Commits { get; set; }
+
+        public IEnumerable<object> Events
+        {
+            get { return Commits.SelectMany(s => (IEnumerable<object>)s.Payload).ToList(); }
+        }
+        public int Revision
+        {
+            get { return Commits.Last().Revision; }
+        }
     }
 }

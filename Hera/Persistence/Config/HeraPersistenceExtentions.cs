@@ -16,7 +16,6 @@ namespace Hera
         public static HeraPersistence SetupPersistence(this Hera hera)
         {
             hera.Builder.RegisterType<AggregateRepository>().As<IAggregateRepository>().InstancePerLifetimeScope();
-            hera.Builder.RegisterType<EventSourcedUnitOfWork>().As<IUnitOfWork>().InstancePerMatchingLifetimeScope("unitOfWork");
 
             return new HeraPersistence(hera);
         }

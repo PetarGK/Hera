@@ -9,7 +9,7 @@ namespace Hera.Persistence.EventStore
 {
     public interface IEventStore
     {
-        void Append(CommitAttempt commitAttempt);
+        void Append(CommitStream commitStream);
         EventStream Load(string streamId);
         EventStream Load(string streamId, int skipRevision);
     }
