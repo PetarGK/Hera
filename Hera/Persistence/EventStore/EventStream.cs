@@ -15,7 +15,7 @@ namespace Hera.Persistence.EventStore
             Commits = commits;
         }
 
-        private IEnumerable<CommitStream> Commits { get; set; }
+        public IEnumerable<CommitStream> Commits { get; private set; }
 
         public IEnumerable<object> Events
         {

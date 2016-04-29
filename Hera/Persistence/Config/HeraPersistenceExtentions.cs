@@ -8,6 +8,7 @@ using Hera.Persistence.EventStore;
 using Hera.Persistence;
 using Hera.Persistence.Snapshot;
 using Hera.DomainModeling.Repository;
+using Hera.Persistence.Integrity;
 
 namespace Hera
 {
@@ -16,6 +17,7 @@ namespace Hera
         public static HeraPersistence SetupPersistence(this Hera hera)
         {
             hera.Builder.RegisterType<AggregateRepository>().As<IAggregateRepository>().InstancePerLifetimeScope();
+            hera.Builder.RegisterType<AggregateIntegrityValidator>().As<IIntegrityValidator>();
 
             return new HeraPersistence(hera);
         }
@@ -24,6 +26,9 @@ namespace Hera
         {
             hera.Builder.RegisterType<InMemoryEventStore>().As<IEventStore>().SingleInstance();
             hera.Builder.RegisterType<InMemorySnapshotStore>().As<ISnapshotStore>().SingleInstance();
+            
+
+            // TODO: Move somewhere else. This is not the right place.
             hera.Builder.RegisterType<DefaultCommitNotifier>().As<ICommitNotifier>().SingleInstance();
             hera.Builder.RegisterType<DefaultEventPublisher>().As<IEventPublisher>().SingleInstance();
             

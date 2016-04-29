@@ -65,6 +65,11 @@
     <Compile Include="Persistence\ICommitNotifier.cs" />
     <Compile Include="Persistence\EventStore\InMemoryEventStore.cs" />
     <Compile Include="Persistence\IEventPublisher.cs" />
+    <Compile Include="Persistence\Integrity\AggregateIntegrityValidator.cs" />
+    <Compile Include="Persistence\Integrity\IIntegrityPolicy.cs" />
+    <Compile Include="Persistence\Integrity\IIntegrityValidator.cs" />
+    <Compile Include="Persistence\Integrity\InvalidAggregateIntegrityException.cs" />
+    <Compile Include="Persistence\Integrity\Policies\RevisionIntegrityPolicy.cs" />
     <Compile Include="Persistence\MissingParameterLessConstructorException.cs" />
     <Compile Include="Persistence\Snapshot\InMemorySnapshotStore.cs" />
     <Compile Include="Persistence\Snapshot\ISnapshotStore.cs" />

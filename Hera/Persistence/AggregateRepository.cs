@@ -9,6 +9,7 @@ using Hera.Persistence.EventStore;
 using Hera.Persistence.Snapshot;
 using Hera.DomainModeling.Repository;
 using Hera.DomainModeling.DomainEvent;
+using Hera.Persistence.Integrity;
 
 namespace Hera.Persistence
 {
@@ -19,16 +20,18 @@ namespace Hera.Persistence
         private readonly IEventStore _eventStore;
         private readonly ISnapshotStore _snapshotStore;
         private readonly IEventPublisher _eventPublisher;
+        private readonly IIntegrityValidator _integrityValidator;
 
         #endregion
 
         #region Constructors
 
-        public AggregateRepository(IEventStore eventStore, ISnapshotStore snapshotStore, IEventPublisher eventPublisher)
+        public AggregateRepository(IEventStore eventStore, ISnapshotStore snapshotStore, IEventPublisher eventPublisher, IIntegrityValidator integrityValidator)
         {
             _eventStore = eventStore;
             _snapshotStore = snapshotStore;
             _eventPublisher = eventPublisher;
+            _integrityValidator = integrityValidator;
         }
 
         #endregion
@@ -45,11 +48,12 @@ namespace Hera.Persistence
             else
                 stream = _eventStore.Load(aggregateRootId.ToString());
 
+            if (_integrityValidator.Validate(stream))
+                throw new InvalidAggregateIntegrityException();
+
             var events = new List<IDomainEvent>();
             foreach(object commitEvents in stream.Events)
-            {
                 events.AddRange(DeserializeEvents(commitEvents));
-            }
 
             aggregateRoot.ReplayEvents(events, stream.Revision);
 
