@@ -11,7 +11,7 @@ namespace Hera.Persistence.EventStore
 {
     public sealed class CommitStream
     {
-        public CommitStream(string streamId, int revision, object payload)
+        public CommitStream(string streamId, int revision, byte[] payload)
         {
             StreamId = streamId;
             Revision = revision;
@@ -20,6 +20,6 @@ namespace Hera.Persistence.EventStore
 
         public string StreamId { get; private set; }
         public int Revision { get; private set; }
-        public object Payload { get; private set; }
+        public byte[] Payload { get; private set; }
     }
 }

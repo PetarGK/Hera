@@ -78,12 +78,14 @@
     <Compile Include="Projection\Config\HeraProjectionExtentions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\BinarySerializer.cs" />
+    <Compile Include="Serialization\Config\HeraSerialization.cs" />
+    <Compile Include="Serialization\Config\HeraSerializationExtentions.cs" />
     <Compile Include="Serialization\ISerialize.cs" />
+    <Compile Include="Serialization\JsonSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Diagnostics\Config\" />
     <Folder Include="Logging\Config\" />
-    <Folder Include="Serialization\Config\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -10,6 +10,8 @@ using Hera.Persistence.Snapshot;
 using Hera.DomainModeling.Repository;
 using Hera.DomainModeling.DomainEvent;
 using Hera.Persistence.Integrity;
+using Hera.Serialization;
+using System.IO;
 
 namespace Hera.Persistence
 {
@@ -21,17 +23,23 @@ namespace Hera.Persistence
         private readonly ISnapshotStore _snapshotStore;
         private readonly IEventPublisher _eventPublisher;
         private readonly IIntegrityValidator _integrityValidator;
+        private readonly ISerialize _serialize;
 
         #endregion
 
         #region Constructors
 
-        public AggregateRepository(IEventStore eventStore, ISnapshotStore snapshotStore, IEventPublisher eventPublisher, IIntegrityValidator integrityValidator)
+        public AggregateRepository(IEventStore eventStore, 
+                                   ISnapshotStore snapshotStore, 
+                                   IEventPublisher eventPublisher, 
+                                   IIntegrityValidator integrityValidator,
+                                   ISerialize serialize)
         {
             _eventStore = eventStore;
             _snapshotStore = snapshotStore;
             _eventPublisher = eventPublisher;
             _integrityValidator = integrityValidator;
+            _serialize = serialize;
         }
 
         #endregion
@@ -52,8 +60,8 @@ namespace Hera.Persistence
                 throw new InvalidAggregateIntegrityException();
 
             var events = new List<IDomainEvent>();
-            foreach(object commitEvents in stream.Events)
-                events.AddRange(DeserializeEvents(commitEvents));
+            foreach(CommitStream commit in stream.Commits)
+                events.AddRange(DeserializeEvents(commit.Payload));
 
             aggregateRoot.ReplayEvents(events, stream.Revision);
 
@@ -61,12 +69,10 @@ namespace Hera.Persistence
         }
         public void Save<TAggregateRoot>(TAggregateRoot aggregateRoot) where TAggregateRoot : IAggregateRoot
         {
-            object payload = SerializeEvents(aggregateRoot.UncommittedEvents);
-
+            byte[] payload = SerializeEvents(aggregateRoot.UncommittedEvents);
             var commitStream = new CommitStream(aggregateRoot.State.Id.ToString(), aggregateRoot.Revision, payload);
 
             _eventStore.Append(commitStream);
-
             foreach (IDomainEvent @event in aggregateRoot.UncommittedEvents)
             {
                 _eventPublisher.Publish(@event);
@@ -83,20 +89,27 @@ namespace Hera.Persistence
             }
             return false;
         }
-
-        private object SerializeEvents(IEnumerable<IDomainEvent> events)
+        private byte[] SerializeEvents(IEnumerable<IDomainEvent> events)
         {
-            // Use ISerialize interface
-            return events;
+            using (var stream = new MemoryStream())
+            {
+                _serialize.Serialize<IEnumerable<IDomainEvent>>(stream, events);
+                return stream.ToArray();
+            }
         }
-        private IEnumerable<IDomainEvent> DeserializeEvents(object payload)
+        private IEnumerable<IDomainEvent> DeserializeEvents(byte[] payload)
         {
-            // Use ISerialize interface
-            return (IEnumerable<IDomainEvent>)payload;
+            using (var stream = new MemoryStream(payload))
+            {
+                return _serialize.Deserialize<IEnumerable<IDomainEvent>>(stream);
+            }
         }
-        private TAggregateRoot DeserializeAggregate<TAggregateRoot>(object payload)
+        private TAggregateRoot DeserializeAggregate<TAggregateRoot>(byte[] payload)
         {
-            return (TAggregateRoot)payload;
+            using (var stream = new MemoryStream(payload))
+            {
+                return _serialize.Deserialize<TAggregateRoot>(stream);
+            }
         }
 
         #endregion

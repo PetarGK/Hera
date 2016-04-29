@@ -22,7 +22,8 @@ namespace Hera.Tests
 
             Hera.Init(builder)
                 .SetupPersistence()
-                .UsingInMemoryPersistence();
+                .UsingInMemoryPersistence()
+                .UsingBinarySerialization();
 
             _container = builder.Build();
         }
@@ -46,8 +47,6 @@ namespace Hera.Tests
                 // act
                 aggregateRepository.Save(order);
 
-                var unitOfWork = scope.Resolve<IUnitOfWork>();
-                unitOfWork.Commit();
                 // assert
 
             }

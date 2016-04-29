@@ -16,11 +16,6 @@ namespace Hera.Persistence.EventStore
         }
 
         public IEnumerable<CommitStream> Commits { get; private set; }
-
-        public IEnumerable<object> Events
-        {
-            get { return Commits.SelectMany(s => (IEnumerable<object>)s.Payload).ToList(); }
-        }
         public int Revision
         {
             get { return Commits.Last().Revision; }

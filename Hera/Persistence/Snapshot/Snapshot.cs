@@ -12,6 +12,6 @@ namespace Hera.Persistence.Snapshot
     {
         public string StreamId { get; set; }
         public int Revision { get; set; }
-        public object Payload { get; set; }
+        public byte[] Payload { get; set; }
     }
 }
