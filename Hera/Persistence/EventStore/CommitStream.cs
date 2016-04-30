@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Hera.Persistence.EventStore
 {
-    public sealed class CommitStream
+    public class CommitStream
     {
         public CommitStream(string streamId, int revision, byte[] payload)
         {
