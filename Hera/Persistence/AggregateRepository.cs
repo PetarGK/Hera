@@ -20,7 +20,7 @@ namespace Hera.Persistence
         #region Fields
 
         private readonly IEventStore _eventStore;
-        private readonly ISnapshotStore _snapshotStore;
+        private readonly ISnapshotManager _snapshotManager;
         private readonly IEventPublisher _eventPublisher;
         private readonly IIntegrityValidator _integrityValidator;
         private readonly ISerialize _serialize;
@@ -30,13 +30,13 @@ namespace Hera.Persistence
         #region Constructors
 
         public AggregateRepository(IEventStore eventStore, 
-                                   ISnapshotStore snapshotStore, 
+                                   ISnapshotManager snapshotManager, 
                                    IEventPublisher eventPublisher, 
                                    IIntegrityValidator integrityValidator,
                                    ISerialize serialize)
         {
             _eventStore = eventStore;
-            _snapshotStore = snapshotStore;
+            _snapshotManager = snapshotManager;
             _eventPublisher = eventPublisher;
             _integrityValidator = integrityValidator;
             _serialize = serialize;
@@ -48,15 +48,21 @@ namespace Hera.Persistence
 
         public TAggregateRoot Load<TAggregateRoot>(IIdentity aggregateRootId) where TAggregateRoot : IAggregateRoot
         {
-            var aggregateRoot = AggregateFactory.CreateAggregateRoot<TAggregateRoot>();
+            TAggregateRoot aggregateRoot = default(TAggregateRoot);
+            aggregateRoot = _snapshotManager.RestoreAggregate<TAggregateRoot>(aggregateRootId);
 
             EventStream stream = null;
-            if (TryRestoreAggregateFromSnapshot(aggregateRootId, aggregateRoot))
-                stream = _eventStore.Load(aggregateRootId.ToString(), aggregateRoot.Revision);
-            else
+            if (aggregateRoot == null)
+            {
+                aggregateRoot = AggregateFactory.CreateAggregateRoot<TAggregateRoot>();
                 stream = _eventStore.Load(aggregateRootId.ToString());
+            }
+            else
+            {
+                stream = _eventStore.Load(aggregateRootId.ToString(), aggregateRoot.Revision);
+            }                
 
-            if (_integrityValidator.Validate(stream))
+            if (!_integrityValidator.Validate(stream))
                 throw new InvalidAggregateIntegrityException();
 
             var events = new List<IDomainEvent>();
@@ -79,16 +85,6 @@ namespace Hera.Persistence
             }
         }
 
-        private bool TryRestoreAggregateFromSnapshot<TAggregateRoot>(IIdentity aggregateRootId, TAggregateRoot aggregateRoot) where TAggregateRoot : IAggregateRoot
-        {
-            var snapshot = _snapshotStore.Load(aggregateRootId.ToString());
-            if (snapshot != null)
-            {
-                aggregateRoot = DeserializeAggregate<TAggregateRoot>(snapshot.Payload);
-                return true;
-            }
-            return false;
-        }
         private byte[] SerializeEvents(IEnumerable<IDomainEvent> events)
         {
             using (var stream = new MemoryStream())
@@ -102,13 +98,6 @@ namespace Hera.Persistence
             using (var stream = new MemoryStream(payload))
             {
                 return _serialize.Deserialize<IEnumerable<IDomainEvent>>(stream);
-            }
-        }
-        private TAggregateRoot DeserializeAggregate<TAggregateRoot>(byte[] payload)
-        {
-            using (var stream = new MemoryStream(payload))
-            {
-                return _serialize.Deserialize<TAggregateRoot>(stream);
             }
         }
 

@@ -17,7 +17,8 @@ namespace Hera
         public static HeraPersistence SetupPersistence(this Hera hera)
         {
             hera.Builder.RegisterType<AggregateRepository>().As<IAggregateRepository>().InstancePerLifetimeScope();
-            hera.Builder.RegisterType<AggregateIntegrityValidator>().As<IIntegrityValidator>();
+            hera.Builder.RegisterType<AggregateIntegrityValidator>().As<IIntegrityValidator>().InstancePerLifetimeScope();
+            hera.Builder.RegisterType<SnapshotManager>().As<ISnapshotManager>().InstancePerLifetimeScope();
 
             return new HeraPersistence(hera);
         }
