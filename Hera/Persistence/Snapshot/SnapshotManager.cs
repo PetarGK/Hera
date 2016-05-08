@@ -13,17 +13,17 @@ namespace Hera.Persistence.Snapshot
     public class SnapshotManager : ISnapshotManager
     {
         private readonly ISnapshotStore _snapshotStore;
-        private readonly ISerialize _serialize;
+        private readonly ISerializationManager _serializeManager;
 
-        public SnapshotManager(ISnapshotStore snapshotStore, ISerialize serialize)
+        public SnapshotManager(ISnapshotStore snapshotStore, ISerializationManager serializeManager)
         {
             _snapshotStore = snapshotStore;
-            _serialize = serialize;
+            _serializeManager = serializeManager;
         }
 
         public void CreateSnapshot<TAggregateRoot>(TAggregateRoot aggregateRoot) where TAggregateRoot : IAggregateRoot
         {
-            var snapshot = new Snapshot(aggregateRoot.State.Id.ToString(), aggregateRoot.Revision, SerializeAggregate<TAggregateRoot>(aggregateRoot));
+            var snapshot = new Snapshot(aggregateRoot.State.Id.ToString(), aggregateRoot.Revision, _serializeManager.SerializeAggregate<TAggregateRoot>(aggregateRoot));
 
             _snapshotStore.Save(snapshot);
         }
@@ -32,26 +32,9 @@ namespace Hera.Persistence.Snapshot
             var snapshot = _snapshotStore.Load(aggregateRootId.ToString());
             if (snapshot != null)
             {
-                return DeserializeAggregate<TAggregateRoot>(snapshot.Payload);
+                return _serializeManager.DeserializeAggregate<TAggregateRoot>(snapshot.Payload);
             }
             return default(TAggregateRoot);
         }
-
-        private byte[] SerializeAggregate<TAggregateRoot>(TAggregateRoot aggregateRoot)
-        {
-            using (var stream = new MemoryStream())
-            {
-                _serialize.Serialize<TAggregateRoot>(stream, aggregateRoot);
-                return stream.ToArray();
-            }
-        }
-        private TAggregateRoot DeserializeAggregate<TAggregateRoot>(byte[] payload)
-        {
-            using (var stream = new MemoryStream(payload))
-            {
-                return _serialize.Deserialize<TAggregateRoot>(stream);
-            }
-        }
-
     }
 }

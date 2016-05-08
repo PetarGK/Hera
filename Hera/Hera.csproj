@@ -47,6 +47,7 @@
     <Compile Include="Config\Hera.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\LogFactory.cs" />
+    <Compile Include="Persistence\CommitNotificationEvent.cs" />
     <Compile Include="Persistence\ConcurrencyException.cs" />
     <Compile Include="Persistence\EventStore\CommitStream.cs" />
     <Compile Include="Persistence\AggregateFactory.cs" />
@@ -74,11 +75,17 @@
     <Compile Include="Persistence\Snapshot\SnapshotManager.cs" />
     <Compile Include="Projection\Config\HeraProjection.cs" />
     <Compile Include="Projection\Config\HeraProjectionExtentions.cs" />
+    <Compile Include="Projection\IPollingClient.cs" />
+    <Compile Include="Projection\IProjectionEventHandler.cs" />
+    <Compile Include="Projection\IProjectionEventPublisher.cs" />
+    <Compile Include="Projection\PollingClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\BinarySerializer.cs" />
     <Compile Include="Serialization\Config\HeraSerialization.cs" />
     <Compile Include="Serialization\Config\HeraSerializationExtentions.cs" />
     <Compile Include="Serialization\ISerialize.cs" />
+    <Compile Include="Serialization\ISerializationManager.cs" />
+    <Compile Include="Serialization\SerializationManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Diagnostics\Config\" />

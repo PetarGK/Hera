@@ -8,12 +8,12 @@ namespace Hera.Persistence
 {
     public interface ICommitNotifier
     {
-        void Notify();
+        void Notify(CommitNotificationEvent @event);
     }
 
     public class DefaultCommitNotifier : ICommitNotifier
     {
-        public void Notify()
+        public void Notify(CommitNotificationEvent @event)
         {
             
         }

@@ -11,7 +11,6 @@ using Hera.DomainModeling.Repository;
 using Hera.DomainModeling.DomainEvent;
 using Hera.Persistence.Integrity;
 using Hera.Serialization;
-using System.IO;
 
 namespace Hera.Persistence
 {
@@ -21,25 +20,37 @@ namespace Hera.Persistence
 
         private readonly IEventStore _eventStore;
         private readonly ISnapshotManager _snapshotManager;
+        private readonly ISerializationManager _serializeManager;
         private readonly IEventPublisher _eventPublisher;
+        private readonly ICommitNotifier _commitNotifier;
         private readonly IIntegrityValidator _integrityValidator;
-        private readonly ISerialize _serialize;
+        
+        private readonly static Dictionary<IIdentity, AggregateMetadata> _loadedAggregates;
+        private readonly static object _syncObject;
 
         #endregion
 
         #region Constructors
 
+        static AggregateRepository()
+        {
+            _loadedAggregates = new Dictionary<IIdentity, AggregateMetadata>();
+            _syncObject = new object();
+        }
+
         public AggregateRepository(IEventStore eventStore, 
-                                   ISnapshotManager snapshotManager, 
-                                   IEventPublisher eventPublisher, 
-                                   IIntegrityValidator integrityValidator,
-                                   ISerialize serialize)
+                                   ISnapshotManager snapshotManager,
+                                   ISerializationManager serializeManager,
+                                   IEventPublisher eventPublisher,
+                                   ICommitNotifier commitNotifier,
+                                   IIntegrityValidator integrityValidator)
         {
             _eventStore = eventStore;
             _snapshotManager = snapshotManager;
+            _serializeManager = serializeManager;
             _eventPublisher = eventPublisher;
+            _commitNotifier = commitNotifier;
             _integrityValidator = integrityValidator;
-            _serialize = serialize;
         }
 
         #endregion
@@ -67,15 +78,17 @@ namespace Hera.Persistence
 
             var events = new List<IDomainEvent>();
             foreach(CommitStream commit in stream.Commits)
-                events.AddRange(DeserializeEvents(commit.Payload));
+                events.AddRange(_serializeManager.DeserializeEvents(commit.Payload));
 
             aggregateRoot.ReplayEvents(events, stream.Revision);
+
+            StoreRevision(aggregateRootId, aggregateRoot.Revision);
 
             return aggregateRoot;
         }
         public void Save<TAggregateRoot>(TAggregateRoot aggregateRoot) where TAggregateRoot : IAggregateRoot
         {
-            byte[] payload = SerializeEvents(aggregateRoot.UncommittedEvents);
+            byte[] payload = _serializeManager.SerializeEvents(aggregateRoot.UncommittedEvents);
             var commitStream = new CommitStream(aggregateRoot.State.Id.ToString(), aggregateRoot.Revision, payload);
 
             _eventStore.Append(commitStream);
@@ -83,24 +96,56 @@ namespace Hera.Persistence
             {
                 _eventPublisher.Publish(@event);
             }
+
+            _commitNotifier.Notify(new CommitNotificationEvent(aggregateRoot.State.Id.ToString(), GetRevision(aggregateRoot.State.Id)));
+
+            RemoveRevision(aggregateRoot.State.Id);
         }
 
-        private byte[] SerializeEvents(IEnumerable<IDomainEvent> events)
+        private void StoreRevision(IIdentity id, int revision)
         {
-            using (var stream = new MemoryStream())
+            lock(_syncObject)
             {
-                _serialize.Serialize<IEnumerable<IDomainEvent>>(stream, events);
-                return stream.ToArray();
+                if (!_loadedAggregates.ContainsKey(id))
+                {
+                    _loadedAggregates[id] = new AggregateMetadata() { Revision = revision, Count = 1 };
+                }
+                else
+                {
+                    var meta = _loadedAggregates[id];
+                    meta.Count++;
+                    if (meta.Revision < revision)
+                        meta.Revision = revision;
+                }
             }
         }
-        private IEnumerable<IDomainEvent> DeserializeEvents(byte[] payload)
+        private void RemoveRevision(IIdentity id)
         {
-            using (var stream = new MemoryStream(payload))
+            lock (_syncObject)
             {
-                return _serialize.Deserialize<IEnumerable<IDomainEvent>>(stream);
+                var meta = _loadedAggregates[id];
+                meta.Count--;
+
+                if (meta.Count == 0)
+                {
+                    _loadedAggregates.Remove(id);
+                }
+            }
+        }
+        private int GetRevision(IIdentity id)
+        {
+            lock (_syncObject)
+            {
+                return _loadedAggregates[id].Revision;
             }
         }
 
         #endregion
+
+        class AggregateMetadata
+        {
+            public int Revision { get; set; }
+            public int Count { get; set; }
+        }
     }
 }
